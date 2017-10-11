@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:gauge="http://schemas.android.com/apk/res-auto"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.hitake.www.rccontroller.CarControllerActivity">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/consoleText"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:text="RC Controller"
+        android:background="@android:color/transparent"
+        android:layout_alignParentEnd="true" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/connectSwitch"
+        android:checked="false"
+        android:layout_alignTop="@+id/rotGauge"
+        android:layout_alignStart="@+id/reverseButton" />
+
+    <com.hitake.www.rccontroller.CustomGauge
+        xmlns:app="http://schemas.android.com/apk/res/com.hitake.www.rccontroller"
+
+        android:text="Connect to car"
+        android:id="@+id/rotGauge"
+        android:checked="false"
+
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:paddingBottom="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp"
+        app:gaugePointStartColor="@color/md_orange_500"
+        app:gaugePointEndColor="@color/md_orange_500"
+        app:gaugePointSize="20"
+        app:gaugeStartAngel="180"
+        app:gaugeStrokeCap="ROUND"
+        app:gaugeStrokeColor="@color/md_grey_400"
+        app:gaugeStrokeWidth="10dp"
+        app:gaugeStartValue="-10"
+        app:gaugeEndValue="10"
+        app:gaugeSweepAngel="180"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/speedGauge" />
+
+    <com.hitake.www.rccontroller.CustomGauge
+        xmlns:app="http://schemas.android.com/apk/res/com.hitake.www.rccontroller"
+        android:id="@+id/speedGauge"
+        android:checked="false"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:paddingBottom="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp"
+        app:gaugePointStartColor="@color/md_green_500"
+        app:gaugePointEndColor="@color/md_green_500"
+        app:gaugePointSize="0"
+        app:gaugeStartAngel="135"
+        app:gaugeStrokeCap="ROUND"
+        app:gaugeStrokeColor="@color/md_grey_400"
+        app:gaugeStrokeWidth="10dp"
+        app:gaugeStartValue="0"
+        app:gaugeEndValue="10"
+        app:gaugeSweepAngel="270"
+        android:layout_marginEnd="70dp"
+        android:layout_alignEnd="@+id/consoleText" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reverse"
+        android:id="@+id/reverseButton"
+        android:layout_centerVertical="true"
+        android:height="100dp"
+        android:background="@drawable/reverse_button"
+        android:layout_toStartOf="@+id/rotGauge" />
+
+    <com.hitake.www.rccontroller.SlideBar
+        android:id="@+id/verticalSeekbar"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_gravity="bottom"
+        android:max="10"
+        android:progress="0"
+        android:thumb="@drawable/knob1"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>
