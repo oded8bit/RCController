@@ -5,12 +5,16 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -22,7 +26,9 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import java.util.*;
 
 /**
  * Manages BLE Shield communications
@@ -38,6 +44,8 @@ public class BLE_NetworkManager extends NetworkManager{
     private BluetoothGattCharacteristic characteristicTx = null;
     private RBLService mBluetoothLeService;
     private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothLeScanner mBluetoothScanner;
+    private BLEScanCallback mScanResults = new BLEScanCallback();
     private BluetoothDevice mDevice = null;
     private String mDeviceAddress;
 
@@ -88,7 +96,8 @@ public class BLE_NetworkManager extends NetworkManager{
 
         final BluetoothManager mBluetoothManager = (BluetoothManager) mActivity.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
-        if (mBluetoothAdapter == null) {
+        mBluetoothScanner = mBluetoothAdapter.getBluetoothLeScanner();
+        if (mBluetoothAdapter == null || mBluetoothScanner == null) {
             sendMessageToUI(true,"Ble not supported");
             return;
         }
@@ -141,9 +150,14 @@ public class BLE_NetworkManager extends NetworkManager{
         }
     };
 
-    public void connect(boolean flag) {
+    public void connect (boolean flag) {
         if (scanFlag == false) {
             scanLeDevice();
+        }
+    }
+
+    public void connectToDevice(boolean flag) {
+        if (scanFlag == false) {
 
             Timer mTimer = new Timer();
             mTimer.schedule(new TimerTask() {
@@ -151,7 +165,7 @@ public class BLE_NetworkManager extends NetworkManager{
                 @Override
                 public void run() {
                     if (mDevice != null) {
-                        sendMessageToUI(false,"Connecting (#2)...");
+                        sendMessageToUI(false,"Connecting to device...");
                         mDeviceAddress = mDevice.getAddress();
                         mBluetoothLeService.connect(mDeviceAddress);
                         scanFlag = true;
@@ -168,7 +182,7 @@ public class BLE_NetworkManager extends NetworkManager{
 
         System.out.println(connState);
         if (connState == false) {
-            sendMessageToUI(false,"Connecting (#1)...");
+            sendMessageToUI(false,"Scanning BLE devices...");
             mBluetoothLeService.connect(mDeviceAddress);
         } else {
             sendMessageToUI(false,"Disconnected");
@@ -261,11 +275,14 @@ public class BLE_NetworkManager extends NetworkManager{
     }
 
     private void scanLeDevice() {
-        new Thread() {
+
+        mBluetoothScanner.startScan(mScanResults);
+        /*new Thread() {
 
             @Override
             public void run() {
-                mBluetoothAdapter.startLeScan(mLeScanCallback);
+                //mBluetoothAdapter.startLeScan(mLeScanCallback);
+                mBluetoothScanner.startScan(mScanResults);
 
                 try {
                     Thread.sleep(SCAN_PERIOD);
@@ -273,9 +290,10 @@ public class BLE_NetworkManager extends NetworkManager{
                     e.printStackTrace();
                 }
 
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                //mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                //mBluetoothScanner.stopScan(mScanResults);
             }
-        }.start();
+        }.start();*/
     }
 
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
@@ -399,4 +417,32 @@ public class BLE_NetworkManager extends NetworkManager{
     }
 
 
+    // Scan Results
+    class BLEScanCallback extends ScanCallback {
+        public void onBatchScanResults(List<ScanResult> results) {
+            Log.d(TAG, "onBatchScanResults");
+            mBluetoothScanner.stopScan(mScanResults);
+        }
+
+        public void onScanFailed(int errorCode) {
+            Log.e(TAG, "Scan failed");
+            mBluetoothScanner.stopScan(mScanResults);
+        }
+
+        public void onScanResult(int callbackType, final ScanResult result) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //String s = result.getDevice().getAddress();
+                    String name = result.getDevice().getName();
+                    if (name.equals(BT_NetworkManager.BT_CAR_NAME)) {
+                        Log.d(TAG, "Found device " + name);
+                        mDevice = result.getDevice();
+                        mBluetoothScanner.stopScan(mScanResults);
+                        connectToDevice(true);
+                    }
+                }
+            });
+        }
+    }
 }

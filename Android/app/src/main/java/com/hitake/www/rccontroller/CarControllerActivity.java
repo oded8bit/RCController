@@ -3,12 +3,14 @@
  */
 package com.hitake.www.rccontroller;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -51,14 +53,14 @@ public class CarControllerActivity extends AppCompatActivity
         // This is the main Preferences class (singletone)
         RCPrefs.getInstance().init(getApplicationContext());
 
-        mConsole = (TextView) findViewById(R.id.consoleText);
+        mConsole = findViewById(R.id.consoleText);
         mNetwork = NetworkFactory.getInstance().getNetworkManager(this);
         mNetwork.create(this);
         mRCSensor = new RCSensor(this);
         mRCSensor.onResume();               // Start motion sensor
 
         // Listen to button toggling - connect / disconnect from car
-        Switch connectSwitch = (Switch) findViewById(R.id.connectSwitch);
+        Switch connectSwitch = findViewById(R.id.connectSwitch);
         connectSwitch.setChecked(false);
         connectSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -116,6 +118,8 @@ public class CarControllerActivity extends AppCompatActivity
                 return false;
             }
         });
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+
     }
 
     // Activity menus

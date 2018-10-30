@@ -23,7 +23,7 @@ import java.util.Set;
  */
 public class BT_NetworkManager extends NetworkManager  {
 
-    private final String BT_CAR_NAME = "RCCar_Oded";
+    static protected final String BT_CAR_NAME = "RCCar_Oded";
 
     private BluetoothAdapter        mBTAdapter;
     private Set<BluetoothDevice>    mPairedDevices;
@@ -152,7 +152,6 @@ public class BT_NetworkManager extends NetworkManager  {
             return ;
 
         mBTClient.sendCommand(cmd+" "+String.valueOf(value));
-        return;
     }
 
     private void createBtClient() {
